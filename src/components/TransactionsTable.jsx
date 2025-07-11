@@ -1,0 +1,246 @@
+import React, { useState } from "react";
+
+const columns = [
+    { key: "datetime", label: "Date & Time", width: "w-40" },
+    { key: "action", label: "Action", width: "w-20" },
+    { key: "symbol", label: "Symbol", width: "w-20" },
+    { key: "assetType", label: "Asset Type", width: "w-24" },
+    { key: "qty", label: "Qty", width: "w-16" },
+    { key: "price", label: "Price", width: "w-24" },
+    { key: "grossAmount", label: "Gross Amount", width: "w-32" },
+    { key: "fees", label: "Fees", width: "w-24" },
+    { key: "netCashFlow", label: "Net Cash Flow", width: "w-32" },
+    { key: "positionAfter", label: "Position", width: "w-20" },
+    { key: "realizedPL", label: "Realized P/L", width: "w-28" },
+    { key: "currency", label: "Currency", width: "w-20" },
+    { key: "platform", label: "Platform", width: "w-24" },
+    { key: "sourceOfCash", label: "Source", width: "w-24" },
+    { key: "investmentType", label: "Investment Type", width: "w-36" },
+];
+
+const data = [
+    {
+        datetime: "2025-07-10 09:35:00",
+        action: "Buy",
+        symbol: "AAPL",
+        assetType: "Stock",
+        qty: 100,
+        price: "$190.00",
+        grossAmount: "$19,000.00",
+        fees: "$4.95",
+        netCashFlow: "−$19,004.95",
+        positionAfter: 100,
+        realizedPL: "—",
+        currency: "USD",
+        platform: "Questrade",
+        sourceOfCash: "Cash Account",
+        investmentType: "Long Term",
+    },
+    {
+        datetime: "2025-07-10 13:47:00",
+        action: "Sell",
+        symbol: "AAPL",
+        assetType: "Stock",
+        qty: 100,
+        price: "$193.50",
+        grossAmount: "$19,350.00",
+        fees: "$4.95",
+        netCashFlow: "+$19,345.05",
+        positionAfter: 0,
+        realizedPL: "+$340.10",
+        currency: "USD",
+        platform: "Questrade",
+        sourceOfCash: "Cash Account",
+        investmentType: "Long Term",
+    },
+    {
+        datetime: "2025-07-11 10:15:00",
+        action: "Buy",
+        symbol: "TSLA",
+        assetType: "Stock",
+        qty: 50,
+        price: "$245.80",
+        grossAmount: "$12,290.00",
+        fees: "$4.95",
+        netCashFlow: "−$12,294.95",
+        positionAfter: 50,
+        realizedPL: "—",
+        currency: "USD",
+        platform: "Questrade",
+        sourceOfCash: "Cash Account",
+        investmentType: "Short Term",
+    },
+    {
+        datetime: "2025-07-11 14:22:00",
+        action: "Sell",
+        symbol: "TSLA",
+        assetType: "Stock",
+        qty: 25,
+        price: "$248.90",
+        grossAmount: "$6,222.50",
+        fees: "$4.95",
+        netCashFlow: "+$6,217.55",
+        positionAfter: 25,
+        realizedPL: "+$77.50",
+        currency: "USD",
+        platform: "Questrade",
+        sourceOfCash: "Cash Account",
+        investmentType: "Short Term",
+    },
+];
+
+const TransactionsTable = () => {
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+    const formatCellValue = (value, key) => {
+        if (key === 'action') {
+            return (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${value === 'Buy'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                    {value}
+                </span>
+            );
+        }
+
+        if (key === 'symbol') {
+            return <span className="font-semibold text-blue-600">{value}</span>;
+        }
+
+        if (key === 'realizedPL' && value !== '—') {
+            return (
+                <span className={`font-semibold ${value.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                    {value}
+                </span>
+            );
+        }
+
+        if (key === 'netCashFlow') {
+            return (
+                <span className={`font-medium ${value.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                    {value}
+                </span>
+            );
+        }
+
+        if (key === 'datetime') {
+            const [date, time] = value.split(' ');
+            return (
+                <div className="text-left">
+                    <div className="font-medium text-gray-900">{date}</div>
+                    <div className="text-xs text-gray-500">{time}</div>
+                </div>
+            );
+        }
+
+        return value;
+    };
+
+    const handleSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const sortedData = React.useMemo(() => {
+        if (!sortConfig.key) return data;
+
+        return [...data].sort((a, b) => {
+            const aValue = a[sortConfig.key];
+            const bValue = b[sortConfig.key];
+
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [sortConfig]);
+
+    return (
+        <div className="w-full max-w-7xl mx-auto">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                {columns.map((col) => (
+                                    <th
+                                        key={col.key}
+                                        className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${col.width}`}
+                                        onClick={() => handleSort(col.key)}
+                                    >
+                                        <div className="flex items-center space-x-1">
+                                            <span>{col.label}</span>
+                                            {sortConfig.key === col.key && (
+                                                <span className="text-blue-500">
+                                                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {sortedData.map((row, idx) => (
+                                <tr
+                                    key={idx}
+                                    className="hover:bg-gray-50 transition-colors duration-150"
+                                >
+                                    {columns.map((col) => (
+                                        <td
+                                            key={col.key}
+                                            className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap"
+                                        >
+                                            {formatCellValue(row[col.key], col.key)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Summary Stats */}
+                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-6 text-sm">
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-500">Total Transactions:</span>
+                            <span className="font-semibold text-gray-900">{data.length}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-500">Total Realized P/L:</span>
+                            <span className="font-semibold text-green-600">+$417.60</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-500">Total Fees:</span>
+                            <span className="font-semibold text-red-600">$19.80</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const HomePage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                    Trading Transactions
+                </h1>
+                <p className="text-gray-600">
+                    Track and analyze your trading performance
+                </p>
+            </div>
+            <TransactionsTable />
+        </div>
+    </div>
+);
+
+export default HomePage;
