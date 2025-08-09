@@ -190,109 +190,99 @@ const TransactionsTable = () => {
 
     return (
         <div className="w-full max-w-7xl mx-auto">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                {/* Tabs */}
-                <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 ${
-                                    activeTab === tab
-                                        ? 'border-blue-500 text-blue-600 bg-blue-50'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
-                            >
-                                {tab === "Long Term" ? "Long-term Investment" : "Short-term Investment"}
-                                <span className="ml-2 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">
-                                    {data.filter(item => item.investmentType === tab).length}
-                                </span>
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                {columns.map((col) => (
-                                    <th
-                                        key={col.key}
-                                        className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${col.width}`}
-                                        onClick={() => handleSort(col.key)}
-                                    >
-                                        <div className="flex items-center space-x-1">
-                                            <span>{col.label}</span>
-                                            {sortConfig.key === col.key && (
-                                                <span className="text-blue-500">
-                                                    {sortConfig.direction === 'asc' ? '↑' : '↓'}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {sortedData.map((row, idx) => (
-                                <tr
-                                    key={idx}
-                                    className="hover:bg-gray-50 transition-colors duration-150"
-                                >
-                                    {columns.map((col) => (
-                                        <td
-                                            key={col.key}
-                                            className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap"
-                                        >
-                                            {formatCellValue(row[col.key], col.key)}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Summary Stats */}
-                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-wrap gap-6 text-sm">
-                        <div className="flex items-center space-x-2">
-                            <span className="text-gray-500">Total Transactions:</span>
-                            <span className="font-semibold text-gray-900">{summaryStats.totalTransactions}</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <span className="text-gray-500">Total Realized P/L:</span>
-                            <span className={`font-semibold ${summaryStats.totalRealizedPL.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                                {summaryStats.totalRealizedPL}
-                            </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <span className="text-gray-500">Total Fees:</span>
-                            <span className="font-semibold text-red-600">{summaryStats.totalFees}</span>
-                        </div>
-                    </div>
-                </div>
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            {/* ADD THE TABLE TITLE HERE */}
+            <div className="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4">
+                <h2 className="text-xl font-semibold text-white">Transaction History</h2>
+                <p className="text-gray-100 text-sm mt-1">View and analyze your trading transactions</p>
             </div>
+            
+           {/* Tabs */}
+ <div className="border-b border-gray-200">
+ <nav className="-mb-px flex">
+     {tabs.map((tab) => (
+         <button
+             key={tab}
+             onClick={() => setActiveTab(tab)}
+             className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 ${
+                 activeTab === tab
+                     ? 'border-blue-500 text-blue-600 bg-blue-50'
+                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+             }`}
+         >
+             {tab === "Long Term" ? "Long-term Investment" : "Short-term Investment"}
+             <span className="ml-2 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">
+                 {data.filter(item => item.investmentType === tab).length}
+             </span>
+         </button>
+     ))}
+ </nav>
+</div>
+
+<div className="overflow-x-auto">
+ <table className="min-w-full divide-y divide-gray-200">
+     <thead className="bg-gray-50">
+         <tr>
+             {columns.map((col) => (
+                 <th
+                     key={col.key}
+                     className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors ${col.width}`}
+                     onClick={() => handleSort(col.key)}
+                 >
+                     <div className="flex items-center space-x-1">
+                         <span>{col.label}</span>
+                         {sortConfig.key === col.key && (
+                             <span className="text-blue-500">
+                                 {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                             </span>
+                         )}
+                     </div>
+                 </th>
+             ))}
+         </tr>
+     </thead>
+     <tbody className="bg-white divide-y divide-gray-200">
+         {sortedData.map((row, idx) => (
+             <tr
+                 key={idx}
+                 className="hover:bg-gray-50 transition-colors duration-150"
+             >
+                 {columns.map((col) => (
+                     <td
+                         key={col.key}
+                         className="px-4 py-3 text-sm text-gray-900 whitespace-nowrap"
+                     >
+                         {formatCellValue(row[col.key], col.key)}
+                     </td>
+                 ))}
+             </tr>
+         ))}
+     </tbody>
+ </table>
+</div>
+
+{/* Summary Stats */}
+<div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+ <div className="flex flex-wrap gap-6 text-sm">
+     <div className="flex items-center space-x-2">
+         <span className="text-gray-500">Total Transactions:</span>
+         <span className="font-semibold text-gray-900">{summaryStats.totalTransactions}</span>
+     </div>
+     <div className="flex items-center space-x-2">
+         <span className="text-gray-500">Total Realized P/L:</span>
+         <span className={`font-semibold ${summaryStats.totalRealizedPL.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+             {summaryStats.totalRealizedPL}
+         </span>
+     </div>
+     <div className="flex items-center space-x-2">
+         <span className="text-gray-500">Total Fees:</span>
+         <span className="font-semibold text-red-600">{summaryStats.totalFees}</span>
+     </div>
+ </div>
+</div>
         </div>
+    </div>
     );
 };
 
-const HomePage = () => (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-        <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                    Trading Transactions
-                </h1>
-                <p className="text-gray-600">
-                    Track and analyze your trading performance
-                </p>
-            </div>
-            <TransactionsTable />
-        </div>
-    </div>
-);
-
-export default HomePage;
+export default TransactionsTable;
