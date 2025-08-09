@@ -15,7 +15,6 @@ const columns = [
     { key: "currency", label: "Currency", width: "w-20" },
     { key: "platform", label: "Platform", width: "w-24" },
     { key: "sourceOfCash", label: "Source", width: "w-24" },
-    { key: "investmentType", label: "Investment Type", width: "w-36" },
 ];
 
 const data = [
@@ -91,6 +90,9 @@ const data = [
 
 const TransactionsTable = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [activeTab, setActiveTab] = useState("Long Term");
+
+    const tabs = ["Long Term", "Short Term"];
 
     const formatCellValue = (value, key) => {
         if (key === 'action') {
@@ -147,10 +149,15 @@ const TransactionsTable = () => {
         setSortConfig({ key, direction });
     };
 
-    const sortedData = React.useMemo(() => {
-        if (!sortConfig.key) return data;
+    // Filter data based on active tab
+    const filteredData = React.useMemo(() => {
+        return data.filter(item => item.investmentType === activeTab);
+    }, [activeTab]);
 
-        return [...data].sort((a, b) => {
+    const sortedData = React.useMemo(() => {
+        if (!sortConfig.key) return filteredData;
+
+        return [...filteredData].sort((a, b) => {
             const aValue = a[sortConfig.key];
             const bValue = b[sortConfig.key];
 
@@ -158,11 +165,54 @@ const TransactionsTable = () => {
             if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
             return 0;
         });
-    }, [sortConfig]);
+    }, [filteredData, sortConfig]);
+
+    // Calculate summary stats for filtered data
+    const summaryStats = React.useMemo(() => {
+        const totalTransactions = filteredData.length;
+        const totalRealizedPL = filteredData
+            .filter(item => item.realizedPL !== '—')
+            .reduce((sum, item) => {
+                const value = parseFloat(item.realizedPL.replace(/[+$,]/g, ''));
+                return sum + value;
+            }, 0);
+        const totalFees = filteredData.reduce((sum, item) => {
+            const value = parseFloat(item.fees.replace(/[$,]/g, ''));
+            return sum + value;
+        }, 0);
+
+        return {
+            totalTransactions,
+            totalRealizedPL: totalRealizedPL > 0 ? `+$${totalRealizedPL.toFixed(2)}` : `$${totalRealizedPL.toFixed(2)}`,
+            totalFees: `$${totalFees.toFixed(2)}`
+        };
+    }, [filteredData]);
 
     return (
         <div className="w-full max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                {/* Tabs */}
+                <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 ${
+                                    activeTab === tab
+                                        ? 'border-blue-500 text-blue-600 bg-blue-50'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                {tab === "Long Term" ? "Long-term Investment" : "Short-term Investment"}
+                                <span className="ml-2 bg-gray-100 text-gray-600 py-1 px-2 rounded-full text-xs">
+                                    {data.filter(item => item.investmentType === tab).length}
+                                </span>
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
@@ -210,15 +260,17 @@ const TransactionsTable = () => {
                     <div className="flex flex-wrap gap-6 text-sm">
                         <div className="flex items-center space-x-2">
                             <span className="text-gray-500">Total Transactions:</span>
-                            <span className="font-semibold text-gray-900">{data.length}</span>
+                            <span className="font-semibold text-gray-900">{summaryStats.totalTransactions}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                             <span className="text-gray-500">Total Realized P/L:</span>
-                            <span className="font-semibold text-green-600">+$417.60</span>
+                            <span className={`font-semibold ${summaryStats.totalRealizedPL.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                                {summaryStats.totalRealizedPL}
+                            </span>
                         </div>
                         <div className="flex items-center space-x-2">
                             <span className="text-gray-500">Total Fees:</span>
-                            <span className="font-semibold text-red-600">$19.80</span>
+                            <span className="font-semibold text-red-600">{summaryStats.totalFees}</span>
                         </div>
                     </div>
                 </div>
